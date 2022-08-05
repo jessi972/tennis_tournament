@@ -41,12 +41,17 @@ contract Tournament {
     receive() payable external {}
 
     modifier notOwner() {
-        require (msg.sender != host);
+        require (msg.sender != host, "As the host, you can't do this!");
         _;
     }
 
     modifier onlyOwner() {
         require(msg.sender == host, "You don't have the right to do this!");
+        _;
+    }
+
+    modifier rankCheck(string memory rank) {
+        require(bytes(rank).length > 0,"Your rank is missing!");
         _;
     }
 
@@ -67,10 +72,12 @@ contract Tournament {
     }
 
     // Method to add a new player into the tournament
-    function addPlayer(string memory rank) public payable notOwner {
-        require(currentStateRegistration == StateRegistration.OPENED, "Registration are closed");
+    function addPlayer(string memory rank) public payable rankCheck(rank) notOwner {
+        require(currentStateRegistration != StateRegistration.CLOSED, "Registration are closed!");
+        require(currentStateRegistration == StateRegistration.OPENED, "Registration are not opened yet");
         require(!players[msg.sender].isRegistered, "You are already registered for this tournament !");
-        require(msg.value == PRICE_REGISTRATION_PLAYER, "Tournament price is 0.2 ether"); // Let's see how we can force the price during the transaction TODO
+        require(sponsors[msg.sender] == 0, "A sponsor can not be a player");
+        require(msg.value == PRICE_REGISTRATION_PLAYER, "Tournament price is 0.2 ether"); 
 
         players[msg.sender] = Player(msg.sender, rank, true);
         nbPlayers++;
@@ -82,7 +89,8 @@ contract Tournament {
     // Method to add a new sponsor for the tournament
     function addSponsor() public payable notOwner {
         require(currentStateTournament == StateTournament.NOT_STARTED);
-        require(sponsors[msg.sender] == 0);
+        require(sponsors[msg.sender] == 0, "You are already a sponsor for this tournament!");
+        require(msg.value > 0, "A donation must be higher than 0");
 
         sponsors[msg.sender] = msg.value;
         donationsSponsors += msg.value;
