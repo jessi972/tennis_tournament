@@ -1,5 +1,5 @@
 {
-    "name": "tennis_tournament",
+    "name": "tennis-tournament",
     "version": "1.0.0",
     "description": "Blockchain Tennis Tournament Powered By Ethereum",
     "main": "truffle-config.js",
