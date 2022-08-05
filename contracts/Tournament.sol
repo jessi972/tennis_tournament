@@ -103,15 +103,19 @@ contract Tournament {
     function rewardWinner(address payable addressWinner) public payable onlyOwner {
         require(currentStateTournament == StateTournament.FINISHED, "The tournament is not yet finished!");
         winner = addressWinner;
-        addressWinner.transfer(donationsSponsors);
-        emit WinnerRewarded(winner, donationsSponsors);
+        uint amount = donationsSponsors;
+        addressWinner.transfer(amount);
+        emit WinnerRewarded(winner, amount);
+        donationsSponsors = 0;
     }
 
     // At the end of the tournament, the organizer get back in their tresory the participations of the participants
     function updateTresoryTournament() public payable onlyOwner {
         require(currentStateTournament == StateTournament.FINISHED, "Tresory can not be updated right now!");
-        host.transfer(paymentsPlayers);
-        emit RefundTresory(host, paymentsPlayers);
+        uint amount = paymentsPlayers;
+        host.transfer(amount);
+        emit RefundTresory(host, amount);
+        paymentsPlayers = 0;
     }
 
     // Method to start the tournament if the registration phase is closed

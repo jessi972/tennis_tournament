@@ -276,8 +276,8 @@ contract('Tournament', (accounts) => {
     // Test to Reward the winner at the end of the tournament
     it('reward winner', async() => {
         const winner = accounts[7];
-        var result = await this.tournament.rewardWinner(winner, {from: this.hostContract});
         const totalDonationsSponsors = await this.tournament.donationsSponsors();
+        var result = await this.tournament.rewardWinner(winner, {from: this.hostContract});
         var event = result.logs[0].args;
         assert.equal(event.winner, winner);
         assert.equal(event.reward.toString(), totalDonationsSponsors.toString());
@@ -290,12 +290,29 @@ contract('Tournament', (accounts) => {
 
     // Test to Reward the winner at the end of the tournament
     it('update tresory', async() => {
-        var result = await this.tournament.updateTresoryTournament({from: this.hostContract});
         const paymentsPlayers = await this.tournament.paymentsPlayers();
+        var result = await this.tournament.updateTresoryTournament({from: this.hostContract});
         var event = result.logs[0].args;
         assert.equal(event.host, this.hostContract);
         assert.equal(event.refund.toString(), paymentsPlayers.toString());
     })
 
+    // Test that donationsSponsors has been reinitialized
+    it('donation sponsors reinitialized', async() => {
+        var donationsSponsors = await this.tournament.donationsSponsors();
+        assert.equal(donationsSponsors.toNumber(), 0);
+    })
+
+    // Test that paymentsPlayers has been reinitialized
+    it('payments players reinitialized', async() => {
+        var paymentsPlayers = await this.tournament.paymentsPlayers();
+        assert.equal(paymentsPlayers.toNumber(), 0);
+    })
+
+    // Test if balance contract is empty
+    it('empty balance contract', async() => {
+        var balance = await this.tournament.getBalance();
+        assert.equal(balance.toNumber(),0);
+    })
 
 })
